@@ -1,6 +1,6 @@
 #include "JCsplit.dtsi"
 
-&kscan {
+&kscan0 {
   row-gpios = 
       <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, //R0
       <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, //R1
