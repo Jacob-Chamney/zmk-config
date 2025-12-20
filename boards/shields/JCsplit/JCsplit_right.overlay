@@ -1,11 +1,7 @@
 #include "JCsplit.dtsi"
 
 &kscan0 {
-  row-gpios = 
-      <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, //R0
-      <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, //R1
-      <&gpio0 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>, //R2
-      <&gpio0 9 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>; //R3
+
 
   col-gpios = 
       <&gpio0 24 (GPIO_ACTIVE_HIGH)>, //C5
@@ -15,4 +11,8 @@
       <&gpio0 8 (GPIO_ACTIVE_HIGH)>, //C1
       <&gpio0 6 (GPIO_ACTIVE_HIGH)>; //C0
 
+};
+
+&default_transform {
+  col-offset = <6>;
 };
