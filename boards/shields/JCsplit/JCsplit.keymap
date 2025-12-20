@@ -6,7 +6,7 @@
         compatible = "zmk,keymap";
 
         default_layer {
-            bindings = 
+            bindings = <
 &kp Q &kp W &kp E &kp R &kp T &kp Y  &kp U &kp I &kp O &kp P &kp BSPC &kp DEL
 &kp A &kp S &kp D &kp F &kp G &kp H  &kp J &kp K &kp L &kp SEMI &kp SQT &kp RET
 &kp Z &kp X &kp C &kp V &kp B &kp N  &kp M &kp COMMA &kp DOT &kp FSLH &kp LSHFT &kp RSHFT
@@ -15,7 +15,7 @@
         };
 
         layer_1 {
-            bindings = 
+            bindings = <
 &kp N1 &kp N2 &kp N3 &kp N4 &kp N5 &kp N6  &kp N7 &kp N8 &kp N9 &kp N0 &trans &trans
 &trans &trans &trans &trans &trans &trans  &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &trans  &trans &trans &trans &trans &trans &trans
@@ -24,7 +24,7 @@
         };
 
         layer_2 {
-            bindings = 
+            bindings = <
 &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT &kp CARET  &kp AMPS &kp STAR &kp LPAR &kp RPAR &trans &trans
 &trans &trans &trans &trans &trans &trans  &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &trans  &trans &trans &trans &trans &trans &trans
