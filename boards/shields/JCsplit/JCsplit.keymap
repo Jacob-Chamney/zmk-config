@@ -44,7 +44,7 @@
     &kp LSHFT &kp A &kp S &kp D &kp F &kp G             &kp H &kp J &kp K &kp L &kp SQT &kp RET
     &kp LCTRL &kp Z &kp X &kp C &kp V &kp B             &kp N &kp M &kp COMMA &kp DOT &kp FSLH &kp RGUI
                   
-              &kp LALT &kp SPACE &mode_gaming 1 ESC     &mo 2 &mo 3 &mo 4
+              &kp LALT &kp SPACE &mode_gaming 1 ESC    &mo 2 &mo 3 &mo 4
             >;
         };
 
