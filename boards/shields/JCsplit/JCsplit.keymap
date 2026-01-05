@@ -30,6 +30,15 @@
         mods = <(MOD_LSFT|MOD_RSFT)>;
       };
 
+      mode_gaming: mode_gaming {
+        compatible = "zmk,behavior-hold-tap";
+        #binding-cells = <2>;
+        tapping-term-ms = <3000>; //3 second hold
+        quick-tap-ms = <0>;
+        flavor = "hold-preferred";
+        bindings = <&to>, <&none>;
+      };
+
     };
 
 
@@ -70,7 +79,7 @@
 
         layer_3 {
             bindings = <
-    &none &none &none &none &kp COLON &kp LPAR     &kp RPAR &kp SEMI &none &none &none &none
+    &mode_gaming 5 &none &none &none &kp COLON &kp LPAR     &kp RPAR &kp SEMI &none &none &none &none
     &none &none &none &none &kp GRAVE &kp LBRC     &kp RBRC &kp BSLH &none &none &none &none
     &none &none &none &none &none &kp LBKT         &kp RBKT &none &none &none &none &none
                       
@@ -88,5 +97,28 @@
 
             >;
         };
+
+        layer_5 {
+            bindings = <
+    &kp ESC &kp Q &kp W &kp E &kp R &kp T           &mode_gaming 0 &none &none &none &none &none
+    &kp TAB &kp A &kp S &kp D &kp F &kp G           &none &none &none &none &none &none
+    &kp LSHFT &kp Z &kp X &kp C &kp V &kp B           &none &none &none &none &none &none
+                      
+        &kp LCTRL &kp SPACE &sl 6              &none &none &none
+
+            >;
+        };
+
+         layer_6 {
+            bindings = <
+    &none &kp N1 &kp N2 &kp N3 &kp N4 &kp N5           &none &none &none &none &none &none
+    &none &kp N6 &kp N7 &kp N8 &kp N9 &kp N0           &none &none &none &none &none &none
+    &none &none &none &none &none &none           &none &none &none &none &none &none
+                      
+                    &none &none &none              &none &none &none
+
+            >;
+        };
+
     };
 };
