@@ -14,35 +14,24 @@
             bindings = <&studio_unlock>, <&kp>;
       };
 
-      mode_gaming: mode_gaming {
+      mode_gaming: mode_diag {
         compatible = "zmk,behavior-hold-tap";
         #binding-cells = <2>;
-        tapping-term-ms = <3000>; //3 second hold
+        tapping-term-ms = <10000>; //10 second hold
         quick-tap-ms = <0>;
         flavor = "tap-preferred";
         bindings = <&to>, <&kp>;
       };
 
-      clear_mode: clear_mode {
-        compatible = "zmk,behavior-hold-tap";
-        #binding-cells = <2>;
-        tapping-term-ms = <3000>; //3 second hold
-        quick-tap-ms = <0>;
-        flavor = "tap-preferred";
-        bindings = <&macro_bt_clr_all>, <&kp>;
+      morph_BSPCDEL: morph_BSPCDEL {
+        compatible = "zmk,behavior-mod-morph";
+        #binding-cells = <0>;
+        bindings = <&kp BSPC>, <&kp DEL>;
+        mods = <(MOD_LSHFT|MOD_RSHFT)>;
       };
 
     };
 
-    macros {
-
-        macro_bt_clr_all: macro_bt_clr_all {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&bt BT_CLR_ALL>;
-        };
-
-    };
 
     keymap {
 
@@ -50,21 +39,21 @@
 
         default_layer {
             bindings = <
-    &zmk_unlock 0 TAB &kp Q &kp W &kp E &kp R &kp T     &kp Y &kp U &kp I &kp O &kp P &kp BSPC
-    &kp LSHFT &kp A &kp S &kp D &kp F &kp G             &kp H &kp J &kp K &kp L &kp SQT &kp RET
-    &kp LCTRL &kp Z &kp X &kp C &kp V &kp B             &kp N &kp M &kp COMMA &kp DOT &kp FSLH &kp RGUI
+    &zmk_unlock 0 TAB &kp Q &kp W &kp E &kp R &kp T     &kp Y &kp U &kp I &kp O &kp P &morph_BSPCDEL
+    &kp LCTRL &kp A &kp S &kp D &kp F &kp G             &kp H &kp J &kp K &kp L &kp SQT &kp RET
+    &kp LSHFT &kp Z &kp X &kp C &kp V &kp B             &kp N &kp M &kp COMMA &kp DOT &kp FSLH &kp RGUI
                   
-              &kp LALT &kp SPACE &mode_gaming 1 ESC    &mo 2 &mo 3 &mo 4
+              &kp LALT &kp SPACE &mode_diag 1 ESC    &mo 2 &mo 3 &mo 4
             >;
         };
 
         layer_1 {
             bindings = <
-    &kp TAB &kp Q &kp W &kp E &kp R &kp T     &clear_mode 0 ESC &mode_gaming 0 ESC &none &none &none &none
-    &kp LSHFT &kp A &kp S &kp D &kp F &kp G     &none &none &none &none &none &none
-    &kp LCTRL &kp Z &kp X &kp C &kp V &kp B     &none &none &none &none &none &none
+    &none &none &none &none &none &bootloader     &bootloader &none &none &none &none &none
+    &none &none &none &none &none &none           &none &none &none &none &none &none
+    &none &none &none &none &none &none           &none &none &none &none &none &none
                       
-        &kp SPACE &mo 2 &kp ESC      &none &none &none
+        &none &none &mode_diag 0 ESC              &none &none &none
 
             >;
         };
