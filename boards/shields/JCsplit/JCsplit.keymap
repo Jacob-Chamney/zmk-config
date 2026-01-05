@@ -14,7 +14,7 @@
             bindings = <&studio_unlock>, <&kp>;
       };
 
-      mode_gaming: mode_diag {
+      mode_diag: mode_diag {
         compatible = "zmk,behavior-hold-tap";
         #binding-cells = <2>;
         tapping-term-ms = <10000>; //10 second hold
