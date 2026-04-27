@@ -84,18 +84,23 @@
 
         /*
          * Custom NUM layer-tap using the Backspace/Delete mod-morph.
+         *
+         * Usage:
+         *   &lt_num_bspc NUM
+         *
+         * Result:
          *   Tap = Backspace
          *   Shift + Tap = Delete
          *   Hold = NUM
          */
         lt_num_bspc: layer_tap_num_backspace {
             compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <0>;
+            #binding-cells = <1>;
             tapping-term-ms = <200>;
             quick-tap-ms = <200>;
             require-prior-idle-ms = <125>;
             flavor = "balanced";
-            bindings = <&mo NUM>, <&bspc_del>;
+            bindings = <&mo>, <&bspc_del>;
         };
     };
 
@@ -138,7 +143,7 @@
 &kp TAB    &kp Q        &kp W        &kp E         &kp R         &kp T         &kp Y    &kp U         &kp I         &kp O         &kp P           &bspc_del
 &kp ESC    &hml LGUI A  &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G         &kp H    &hmr RSHFT J  &hmr RCTRL K  &hmr LALT L   &hmr RGUI SEMI  &kp SQT
 &kp LSHFT  &kp Z        &kp X        &kp C         &kp V         &kp B         &kp N    &kp M         &kp COMMA     &kp DOT       &kp FSLH        &kp RET
-                                     &lt MEDIA ESC &lt NAV SPACE &kp TAB      &lt SYM RET &lt_num_bspc &lt UTIL DEL
+                                     &lt MEDIA ESC &lt NAV SPACE &kp TAB      &lt SYM RET &lt_num_bspc NUM &lt UTIL DEL
             >;
         };
 
