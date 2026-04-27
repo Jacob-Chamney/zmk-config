@@ -4,7 +4,7 @@
  * Home row mods: GACS (GUI/Alt/Ctrl/Shift, pinky→index)
  *
  * Layer-tap thumbs:
- *   L: Esc/MEDIA  Spc/NAV  Tab/MOUSE
+ *   L: Esc/MEDIA  Spc/NAV  Tab/UTIL
  *   R: Ent/SYM    Bsp/NUM  Del/FUN
  *
  * DIAG layer: hold both outer thumbs (MEDIA + FUN simultaneously).
@@ -19,7 +19,7 @@
 
 #define BASE  0
 #define NAV   1
-#define MOUSE 2
+#define UTIL  2
 #define MEDIA 3
 #define NUM   4
 #define SYM   5
@@ -46,6 +46,8 @@
             hold-trigger-on-release;
             bindings = <&kp>, <&kp>;
         };
+
+        /* Home row mod, right hand — only triggers hold when paired with left/thumb keys */
         hmr: home_row_mod_right {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
@@ -61,16 +63,19 @@
 
     combos {
         compatible = "zmk,combos";
+
         /* Both inner thumbs together = toggle GAME on/off */
         combo_game_toggle {
             timeout-ms = <50>;
             key-positions = <38 39>;
             bindings = <&tog GAME>;
+            layers = <BASE>;
         };
     };
 
     conditional_layers {
         compatible = "zmk,conditional-layers";
+
         /* Holding both outer thumbs (MEDIA + FUN) brings up DIAG */
         tri_diag {
             if-layers = <MEDIA FUN>;
@@ -87,40 +92,57 @@
 &kp TAB    &kp Q        &kp W        &kp E         &kp R         &kp T         &kp Y    &kp U         &kp I         &kp O         &kp P           &kp BSPC
 &kp ESC    &hml LGUI A  &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G         &kp H    &hmr RSHFT J  &hmr RCTRL K  &hmr LALT L   &hmr RGUI SEMI  &kp SQT
 &kp LSHFT  &kp Z        &kp X        &kp C         &kp V         &kp B         &kp N    &kp M         &kp COMMA     &kp DOT       &kp FSLH        &kp RET
-                                     &lt MEDIA ESC &lt NAV SPACE &lt MOUSE TAB &lt SYM RET &lt NUM BSPC &lt FUN DEL
+                                     &lt MEDIA ESC &lt NAV SPACE &lt UTIL TAB &lt SYM RET &lt NUM BSPC &lt FUN DEL
             >;
         };
 
+        /*
+         * NAV layer — navigation + editing.
+         * Right hand has arrows, Insert/Delete, Home/End, PgUp/PgDn.
+         * Left hand has word movement/deletion and common editing shortcuts.
+         */
         nav_layer {
             display-name = "NAV";
             bindings = <
-&trans  &trans     &trans     &trans     &trans     &trans      &kp K_REDO   &kp K_PASTE  &kp K_COPY  &kp K_CUT   &kp K_UNDO  &trans
-&trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &kp CAPS    &kp LEFT     &kp DOWN     &kp UP      &kp RIGHT   &kp INS     &trans
-&trans  &trans     &trans     &trans     &trans     &trans      &kp HOME     &kp PG_DN    &kp PG_UP   &kp END     &kp DEL     &trans
-                              &trans     &trans     &trans      &kp RET      &kp BSPC     &kp DEL
+&trans  &kp K_UNDO    &kp K_CUT     &kp K_COPY    &kp K_PASTE  &kp K_REDO   &kp K_REDO  &kp K_PASTE  &kp K_COPY  &kp K_CUT   &kp K_UNDO  &trans
+&trans  &kp LC(LEFT)  &kp LC(RIGHT) &kp LC(BSPC)  &kp LC(DEL)  &kp CAPS     &kp LEFT    &kp DOWN     &kp UP      &kp RIGHT   &kp INS     &trans
+&trans  &trans        &trans        &trans        &trans       &trans       &kp HOME    &kp PG_DN    &kp PG_UP   &kp END     &kp DEL     &trans
+                                &trans        &trans        &trans       &kp RET     &kp BSPC     &kp DEL
             >;
         };
 
-        mouse_layer {
-            display-name = "MOUSE";
+        /*
+         * UTIL layer — general utility / game-support layer.
+         * Replaces the old MOUSE layer.
+         * Provides F-keys, navigation keys, Insert/Delete, PgUp/PgDn, and system keys.
+         */
+        util_layer {
+            display-name = "UTIL";
             bindings = <
-&trans  &trans     &trans     &trans     &trans     &trans      &msc SCRL_UP &mkp MB4    &mkp MCLK    &mkp MB5    &msc SCRL_DOWN &trans
-&trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &trans      &mmv MOVE_LEFT &mmv MOVE_DOWN &mmv MOVE_UP &mmv MOVE_RIGHT &trans &trans
-&trans  &trans     &trans     &trans     &trans     &trans      &trans       &mkp LCLK   &mkp RCLK    &trans      &trans         &trans
-                              &trans     &trans     &trans      &mkp LCLK    &mkp RCLK   &mkp MCLK
+&trans  &kp F1       &kp F2       &kp F3       &kp F4       &kp F5          &kp F6        &kp F7        &kp F8        &kp F9      &kp F10       &trans
+&trans  &kp CAPS     &kp INS      &kp HOME     &kp PG_UP    &kp DEL         &kp LEFT      &kp DOWN      &kp UP        &kp RIGHT   &kp F11       &trans
+&trans  &kp PSCRN    &kp SLCK     &kp END      &kp PG_DN    &kp PAUSE_BREAK &kp LC(LEFT)  &kp LC(RIGHT) &kp LC(BSPC)  &kp LC(DEL) &kp F12       &trans
+                                &trans        &trans        &trans         &kp K_APP     &kp SPACE     &trans
             >;
         };
 
+        /*
+         * MEDIA layer — Bluetooth/output/media only.
+         * Duplicate modifiers were removed to keep the layer clean.
+         */
         media_layer {
             display-name = "MEDIA";
             bindings = <
-&trans  &bt BT_CLR  &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3   &trans       &trans         &trans       &trans         &trans       &trans
-&trans  &kp LGUI    &kp LALT     &kp LCTRL    &kp LSHFT    &out OUT_TOG   &kp C_PREV   &kp C_VOL_DN   &kp C_VOL_UP &kp C_NEXT     &trans       &trans
+&trans  &trans      &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3   &trans       &trans         &trans       &trans         &trans       &trans
+&trans  &none       &none        &none        &none        &out OUT_TOG   &kp C_PREV   &kp C_VOL_DN   &kp C_VOL_UP &kp C_NEXT     &trans       &trans
 &trans  &trans      &trans       &trans       &trans       &trans         &trans       &trans         &kp C_MUTE   &kp C_PP       &kp C_STOP   &trans
                                  &trans       &trans       &trans         &kp C_STOP   &kp C_PP       &kp C_MUTE
             >;
         };
 
+        /*
+         * NUM layer — numbers, brackets, and common numeric operators.
+         */
         num_layer {
             display-name = "NUM";
             bindings = <
@@ -131,33 +153,45 @@
             >;
         };
 
+        /*
+         * SYM layer — programming symbols.
+         */
         sym_layer {
             display-name = "SYM";
             bindings = <
 &trans  &trans     &trans     &trans     &trans     &trans     &kp LBRC      &kp AMPS  &kp ASTRK &kp LPAR  &kp RBRC      &trans
 &trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &trans     &kp COLON     &kp DLLR  &kp PRCNT &kp CARET &kp PLUS      &trans
 &trans  &trans     &trans     &trans     &trans     &trans     &kp TILDE     &kp EXCL  &kp AT    &kp HASH  &kp PIPE      &trans
-                              &trans     &trans     &kp UNDER  &trans        &kp LPAR  &kp RPAR
+                              &trans     &trans     &kp UNDER  &trans        &kp LBRC  &kp RBRC
             >;
         };
 
+        /*
+         * FUN layer — function/system layer.
+         */
         fun_layer {
             display-name = "FUN";
             bindings = <
-&trans  &trans     &trans     &trans     &trans     &trans     &kp PSCRN     &kp F7    &kp F8    &kp F9    &kp F12       &trans
-&trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &trans     &kp SLCK      &kp F4    &kp F5    &kp F6    &kp F11       &trans
-&trans  &trans     &trans     &trans     &trans     &trans     &kp PAUSE_BREAK &kp F1  &kp F2    &kp F3    &kp F10       &tog GAME
-                              &trans     &trans     &trans     &kp K_APP     &kp SPACE &trans
+&trans  &trans     &trans     &trans     &trans     &trans     &kp PSCRN       &kp F7    &kp F8    &kp F9    &kp F12       &trans
+&trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &trans     &kp SLCK        &kp F4    &kp F5    &kp F6    &kp F11       &trans
+&trans  &trans     &trans     &trans     &trans     &trans     &kp PAUSE_BREAK &kp F1    &kp F2    &kp F3    &kp F10       &tog GAME
+                              &trans     &trans     &trans     &kp K_APP       &kp SPACE &trans
             >;
         };
 
+        /*
+         * GAME layer — Arma-friendly gaming layer.
+         * Top row is numbers 1–0.
+         * Left side preserves common gaming controls.
+         * Right Enter thumb can be held for UTIL access.
+         */
         game_layer {
             display-name = "GAME";
             bindings = <
-&kp ESC    &kp T      &kp Q      &kp W      &kp E      &kp R         &kp Y    &kp U      &kp I      &kp O      &kp P         &kp BSPC
-&kp TAB    &kp LSHFT  &kp A      &kp S      &kp D      &kp F         &kp H    &kp J      &kp K      &kp L      &kp SEMI      &kp SQT
-&kp LCTRL  &kp Z      &kp X      &kp C      &kp V      &kp B         &kp N    &kp M      &kp COMMA  &kp DOT    &kp FSLH      &kp RET
-                                 &kp LCTRL  &kp SPACE  &kp LALT      &kp RET  &kp BSPC   &tog GAME
+&kp ESC    &kp N1     &kp N2     &kp N3     &kp N4     &kp N5        &kp N6    &kp N7      &kp N8      &kp N9      &kp N0        &kp BSPC
+&kp TAB    &kp LSHFT  &kp Q      &kp W      &kp E      &kp R         &kp Y     &kp U       &kp I       &kp O       &kp P         &kp SQT
+&kp LCTRL  &kp Z      &kp X      &kp C      &kp V      &kp B         &kp N     &kp M       &kp COMMA   &kp DOT     &kp FSLH      &kp RET
+                                 &kp LCTRL  &kp SPACE  &kp LALT      &lt UTIL RET &kp BSPC &tog GAME
             >;
         };
 
@@ -182,15 +216,12 @@
 /*
  * Tune the default &lt (layer-tap) used on the thumbs.
  *   quick-tap-ms:           tap-then-hold within this window repeats the tap
- *                           instead of activating the layer (this is what
- *                           makes hold-to-repeat-Backspace work)
+ *                           instead of activating the layer.
  *   require-prior-idle-ms:  if a non-layer-tap key was pressed within this
  *                           window, the next layer-tap press resolves to its
- *                           tap action — kills accidental layers during rolls
+ *                           tap action — kills accidental layers during rolls.
  */
 &lt {
     quick-tap-ms = <200>;
     require-prior-idle-ms = <125>;
 };
-
-
