@@ -1,6 +1,6 @@
 /*
  * JCsplit — Clean 42-key Corne keymap
- * Miryoku-inspired QWERTY + GAME layer
+ * Colemak-DH base + QWERTY/WASD GAME layer
  * Home row mods: GACS (GUI/Alt/Ctrl/Shift, pinky→index)
  *
  * Layer-tap thumbs:
@@ -15,6 +15,10 @@
  *
  * DIAG layer: hold both outer thumbs (MEDIA + UTIL simultaneously).
  * Has bootloader/reset on each half, plus BT_CLR / BT_CLR_ALL.
+ *
+ * Important:
+ *   Keep your OS keyboard layout set to QWERTY.
+ *   The keyboard firmware handles Colemak-DH.
  */
 
 #include <behaviors.dtsi>
@@ -40,7 +44,14 @@
     behaviors {
         /*
          * Home row mod, left hand.
-         * Only triggers hold when paired with right-hand or thumb keys.
+         * Colemak-DH home row:
+         *   A R S T
+         *
+         * Mods:
+         *   A = GUI
+         *   R = Alt
+         *   S = Ctrl
+         *   T = Shift
          */
         hml: home_row_mod_left {
             compatible = "zmk,behavior-hold-tap";
@@ -56,7 +67,14 @@
 
         /*
          * Home row mod, right hand.
-         * Only triggers hold when paired with left-hand or thumb keys.
+         * Colemak-DH home row:
+         *   N E I O
+         *
+         * Mods:
+         *   N = Shift
+         *   E = Ctrl
+         *   I = Alt
+         *   O = GUI
          */
         hmr: home_row_mod_right {
             compatible = "zmk,behavior-hold-tap";
@@ -86,16 +104,19 @@
          * Custom NUM layer-tap using the Backspace/Delete mod-morph.
          *
          * Usage:
-         *   &lt_num_bspc NUM
+         *   &lt_num_bspc NUM 0
          *
          * Result:
          *   Tap = Backspace
          *   Shift + Tap = Delete
          *   Hold = NUM
+         *
+         * The second parameter is a dummy value because ZMK hold-tap
+         * behaviors require exactly two binding cells.
          */
         lt_num_bspc: layer_tap_num_backspace {
             compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <1>;
+            #binding-cells = <2>;
             tapping-term-ms = <200>;
             quick-tap-ms = <200>;
             require-prior-idle-ms = <125>;
@@ -137,13 +158,21 @@
     keymap {
         compatible = "zmk,keymap";
 
+        /*
+         * BASE — Colemak-DH.
+         *
+         * Layout:
+         *   Q W F P B   J L U Y ;
+         *   A R S T G   M N E I O
+         *   Z X C D V   K H , . /
+         */
         base_layer {
             display-name = "BASE";
             bindings = <
-&kp TAB    &kp Q        &kp W        &kp E         &kp R         &kp T         &kp Y    &kp U         &kp I         &kp O         &kp P           &bspc_del
-&kp ESC    &hml LGUI A  &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G         &kp H    &hmr RSHFT J  &hmr RCTRL K  &hmr LALT L   &hmr RGUI SEMI  &kp SQT
-&kp LSHFT  &kp Z        &kp X        &kp C         &kp V         &kp B         &kp N    &kp M         &kp COMMA     &kp DOT       &kp FSLH        &kp RET
-                                     &lt MEDIA ESC &lt NAV SPACE &kp TAB      &lt SYM RET &lt_num_bspc NUM &lt UTIL DEL
+&kp TAB    &kp Q        &kp W        &kp F         &kp P         &kp B         &kp J    &kp L         &kp U         &kp Y         &kp SEMI        &bspc_del
+&kp ESC    &hml LGUI A  &hml LALT R  &hml LCTRL S  &hml LSHFT T  &kp G         &kp M    &hmr RSHFT N  &hmr RCTRL E  &hmr LALT I   &hmr RGUI O     &kp SQT
+&kp LSHFT  &kp Z        &kp X        &kp C         &kp D         &kp V         &kp K    &kp H         &kp COMMA     &kp DOT       &kp FSLH        &kp RET
+                                     &lt MEDIA ESC &lt NAV SPACE &kp TAB      &lt SYM RET &lt_num_bspc NUM 0 &lt UTIL DEL
             >;
         };
 
@@ -219,16 +248,19 @@
         };
 
         /*
-         * GAME — Arma-friendly gaming layer.
+         * GAME — QWERTY/WASD-friendly gaming layer.
          *
-         * Top row is 1–0.
-         * Right Enter thumb can be held for UTIL access.
+         * This intentionally stays QWERTY even though BASE is Colemak-DH.
+         * Most games expect QWERTY physical positions.
+         *
+         * Hold right Enter thumb for UTIL access:
+         *   F-keys, Insert/Delete, Home/End, PgUp/PgDn, etc.
          */
         game_layer {
             display-name = "GAME";
             bindings = <
-&kp ESC    &kp N1     &kp N2     &kp N3     &kp N4     &kp N5        &kp N6    &kp N7      &kp N8      &kp N9      &kp N0        &bspc_del
-&kp TAB    &kp LSHFT  &kp Q      &kp W      &kp E      &kp R         &kp Y     &kp U       &kp I       &kp O       &kp P         &kp SQT
+&kp ESC    &kp T      &kp Q      &kp W      &kp E      &kp R         &kp Y     &kp U       &kp I       &kp O       &kp P         &bspc_del
+&kp TAB    &kp LSHFT  &kp A      &kp S      &kp D      &kp F         &kp H     &kp J       &kp K       &kp L       &kp SEMI      &kp SQT
 &kp LCTRL  &kp Z      &kp X      &kp C      &kp V      &kp B         &kp N     &kp M       &kp COMMA   &kp DOT     &kp FSLH      &kp RET
                                  &kp LCTRL  &kp SPACE  &kp LALT      &lt UTIL RET &bspc_del &tog GAME
             >;
