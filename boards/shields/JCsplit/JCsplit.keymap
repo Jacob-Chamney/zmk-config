@@ -16,6 +16,15 @@
  * DIAG layer: hold both outer thumbs (MEDIA + UTIL simultaneously).
  * Has bootloader/reset on each half, plus BT_CLR / BT_CLR_ALL.
  *
+ * Changes from original:
+ *   - BASE bottom-left:  LSHFT  → EQUAL  (= no longer buried in NUM only)
+ *   - BASE bottom-right: RET    → MINUS  (- no longer buried in NUM only)
+ *   - NAV:               CAPS   → caps_word
+ *   - NUM:               N0 moved from bottom-left numpad → right-inner thumb
+ *                        DOT placed where N0 was (bottom-left of numpad block)
+ *   - SYM top row:       LBRC   → RPAR   (removes thumb duplicate; ( ) now both on top row)
+ *   - GAME top row:      T Q W E R → Q W E R T  (standard QWERTY row)
+ *
  * Important:
  *   Keep your OS keyboard layout set to QWERTY.
  *   The keyboard firmware handles Colemak-DH.
@@ -162,16 +171,24 @@
          * BASE — Colemak-DH.
          *
          * Layout:
-         *   Q W F P B   J L U Y ;
-         *   A R S T G   M N E I O
-         *   Z X C D V   K H , . /
+         *   Q  W  F  P  B     J  L  U  Y  ;
+         *   A  R  S  T  G     M  N  E  I  O
+         *   Z  X  C  D  V     K  H  ,  .  /
+         *
+         * Outer columns:
+         *   Left:  TAB  ESC  =     (= promoted from NUM for easy access)
+         *   Right: ;    '    -     (- promoted from NUM for easy access)
+         *
+         * Home row mods (hold):
+         *   A=GUI  R=Alt  S=Ctrl  T=Shift
+         *   N=Shift  E=Ctrl  I=Alt  O=GUI
          */
         base_layer {
             display-name = "BASE";
             bindings = <
 &kp TAB    &kp Q        &kp W        &kp F         &kp P         &kp B         &kp J    &kp L         &kp U         &kp Y         &kp SEMI        &bspc_del
 &kp ESC    &hml LGUI A  &hml LALT R  &hml LCTRL S  &hml LSHFT T  &kp G         &kp M    &hmr RSHFT N  &hmr RCTRL E  &hmr LALT I   &hmr RGUI O     &kp SQT
-&kp LSHFT  &kp Z        &kp X        &kp C         &kp D         &kp V         &kp K    &kp H         &kp COMMA     &kp DOT       &kp FSLH        &kp RET
+&kp EQUAL  &kp Z        &kp X        &kp C         &kp D         &kp V         &kp K    &kp H         &kp COMMA     &kp DOT       &kp FSLH        &kp MINUS
                                      &lt MEDIA ESC &lt NAV SPACE &kp TAB      &lt SYM RET &lt_num_bspc NUM 0 &lt UTIL DEL
             >;
         };
@@ -184,12 +201,16 @@
          *
          * Left hand:
          *   Undo/Cut/Copy/Paste/Redo and word movement/deletion.
+         *
+         * caps_word on G position:
+         *   Activates shift for one word, then auto-deactivates.
+         *   Useful for typing SCREAMING_SNAKE_CASE without holding shift.
          */
         nav_layer {
             display-name = "NAV";
             bindings = <
 &trans  &kp K_UNDO    &kp K_CUT     &kp K_COPY    &kp K_PASTE  &kp K_REDO   &kp K_REDO  &kp K_PASTE  &kp K_COPY  &kp K_CUT   &kp K_UNDO  &trans
-&trans  &kp LC(LEFT)  &kp LC(RIGHT) &kp LC(BSPC)  &kp LC(DEL)  &kp CAPS     &kp LEFT    &kp DOWN     &kp UP      &kp RIGHT   &kp INS     &trans
+&trans  &kp LC(LEFT)  &kp LC(RIGHT) &kp LC(BSPC)  &kp LC(DEL)  &caps_word   &kp LEFT    &kp DOWN     &kp UP      &kp RIGHT   &kp INS     &trans
 &trans  &trans        &trans        &trans        &trans       &trans       &kp HOME    &kp PG_DN    &kp PG_UP   &kp END     &kp DEL     &trans
                                 &trans        &trans        &trans       &kp RET     &bspc_del   &kp DEL
             >;
@@ -223,24 +244,39 @@
 
         /*
          * NUM — numbers, brackets, and common numeric operators.
+         *
+         * Numpad layout (right hand):
+         *   [  7  8  9  ]
+         *   ;  4  5  6  =
+         *   .  1  2  3  -
+         *
+         * 0 promoted to right-inner thumb for natural numpad feel.
+         * Dot and comma on thumbs for decimal entry.
          */
         num_layer {
             display-name = "NUM";
             bindings = <
 &trans  &trans     &trans     &trans     &trans     &trans     &kp LBKT      &kp N7    &kp N8    &kp N9    &kp RBKT      &trans
 &trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &trans     &kp SEMI      &kp N4    &kp N5    &kp N6    &kp EQUAL     &trans
-&trans  &trans     &trans     &kp BSLH   &kp GRAVE  &trans     &kp N0        &kp N1    &kp N2    &kp N3    &kp MINUS     &trans
-                              &trans     &trans     &trans     &kp DOT       &trans    &kp COMMA
+&trans  &trans     &trans     &kp BSLH   &kp GRAVE  &trans     &kp DOT       &kp N1    &kp N2    &kp N3    &kp MINUS     &trans
+                              &trans     &trans     &trans     &kp COMMA     &kp N0    &trans
             >;
         };
 
         /*
          * SYM — programming symbols.
+         *
+         * Top row right hand:
+         *   )  &  *  (  }
+         *   ( and ) both on top row; { } on thumbs.
+         *
+         * Thumbs:
+         *   _  (hold SYM)  {  }
          */
         sym_layer {
             display-name = "SYM";
             bindings = <
-&trans  &trans     &trans     &trans     &trans     &trans     &kp LBRC      &kp AMPS  &kp ASTRK &kp LPAR  &kp RBRC      &trans
+&trans  &trans     &trans     &trans     &trans     &trans     &kp RPAR      &kp AMPS  &kp ASTRK &kp LPAR  &kp RBRC      &trans
 &trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &trans     &kp COLON     &kp DLLR  &kp PRCNT &kp CARET &kp PLUS      &trans
 &trans  &trans     &trans     &trans     &trans     &trans     &kp TILDE     &kp EXCL  &kp AT    &kp HASH  &kp PIPE      &trans
                               &trans     &trans     &kp UNDER  &trans        &kp LBRC  &kp RBRC
@@ -250,16 +286,18 @@
         /*
          * GAME — QWERTY/WASD-friendly gaming layer.
          *
-         * This intentionally stays QWERTY even though BASE is Colemak-DH.
-         * Most games expect QWERTY physical positions.
+         * Standard QWERTY top row: Q W E R T
+         * ESC on outer left pinky — standard for most games.
          *
          * Hold right Enter thumb for UTIL access:
          *   F-keys, Insert/Delete, Home/End, PgUp/PgDn, etc.
+         *
+         * Toggle GAME off: right outer thumb (&tog GAME).
          */
         game_layer {
             display-name = "GAME";
             bindings = <
-&kp ESC    &kp T      &kp Q      &kp W      &kp E      &kp R         &kp Y     &kp U       &kp I       &kp O       &kp P         &bspc_del
+&kp ESC    &kp Q      &kp W      &kp E      &kp R      &kp T         &kp Y     &kp U       &kp I       &kp O       &kp P         &bspc_del
 &kp TAB    &kp LSHFT  &kp A      &kp S      &kp D      &kp F         &kp H     &kp J       &kp K       &kp L       &kp SEMI      &kp SQT
 &kp LCTRL  &kp Z      &kp X      &kp C      &kp V      &kp B         &kp N     &kp M       &kp COMMA   &kp DOT     &kp FSLH      &kp RET
                                  &kp LCTRL  &kp SPACE  &kp LALT      &lt UTIL RET &bspc_del &tog GAME
