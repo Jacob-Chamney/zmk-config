@@ -1,33 +1,20 @@
 /*
- * JCsplit — Clean 42-key Corne keymap
- * Colemak-DH base + QWERTY/WASD GAME layer
- * Home row mods: GACS (GUI/Alt/Ctrl/Shift, pinky→index)
+ * JCsplit 42-key keymap  (3x6 + 3 thumbs per half)
  *
- * Layer-tap thumbs:
- *   L: Esc/MEDIA  Spc/NAV  Tab
- *   R: Ent/SYM    Bsp/NUM  Del/UTIL
+ * Physical key positions:
+ *   0  1  2  3  4  5    |    6  7  8  9 10 11
+ *  12 13 14 15 16 17    |   18 19 20 21 22 23
+ *  24 25 26 27 28 29    |   30 31 32 33 34 35
+ *            36 37 38   |   39 40 41
  *
- * Special behavior:
- *   Backspace = Backspace
- *   Shift + Backspace = Delete
- *
- * Insert is available on NAV and UTIL.
- *
- * DIAG layer: hold both outer thumbs (MEDIA + UTIL simultaneously).
- * Has bootloader/reset on each half, plus BT_CLR / BT_CLR_ALL.
- *
- * Changes from original:
- *   - BASE bottom-left:  LSHFT  → EQUAL  (= no longer buried in NUM only)
- *   - BASE bottom-right: RET    → MINUS  (- no longer buried in NUM only)
- *   - NAV:               CAPS   → caps_word
- *   - NUM:               N0 moved from bottom-left numpad → right-inner thumb
- *                        DOT placed where N0 was (bottom-left of numpad block)
- *   - SYM top row:       LBRC   → RPAR   (removes thumb duplicate; ( ) now both on top row)
- *   - GAME top row:      T Q W E R → Q W E R T  (standard QWERTY row)
- *
- * Important:
- *   Keep your OS keyboard layout set to QWERTY.
- *   The keyboard firmware handles Colemak-DH.
+ * Layers:
+ *  0 BASE  - QWERTY + GACS home row mods ("timeless" tuning)
+ *  1 NAV   - arrows, home/end, page, copy/paste, media on left
+ *  2 NUM   - right-hand numpad, F-keys on top
+ *  3 SYM   - programming symbols mirrored for comfort
+ *  4 SYS   - Bluetooth profiles, USB/BLE toggle, reset/bootloader
+ *  5 GAME  - plain QWERTY, NO home row mods, gaming thumbs
+ *  6 GFN   - gaming number/function overlay
  */
 
 #include <behaviors.dtsi>
@@ -35,295 +22,172 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/outputs.h>
 
-#define BASE  0
-#define NAV   1
-#define UTIL  2
-#define MEDIA 3
-#define NUM   4
-#define SYM   5
-#define GAME  6
-#define DIAG  7
+#define BASE 0
+#define NAV  1
+#define NUM  2
+#define SYM  3
+#define SYS  4
+#define GAME 5
+#define GFN  6
 
-/* Key-position groups for HRM hold-trigger */
+/* Hand groupings for hold-trigger-key-positions */
 #define KEYS_L 0 1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29
 #define KEYS_R 6 7 8 9 10 11 18 19 20 21 22 23 30 31 32 33 34 35
 #define THUMBS 36 37 38 39 40 41
 
 / {
     behaviors {
-        /*
-         * Home row mod, left hand.
-         * Colemak-DH home row:
-         *   A R S T
-         *
-         * Mods:
-         *   A = GUI
-         *   R = Alt
-         *   S = Ctrl
-         *   T = Shift
-         */
+        /* Left-hand home row mod: only holds if next key is on the RIGHT hand */
         hml: home_row_mod_left {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
+            flavor = "balanced";
             tapping-term-ms = <280>;
             quick-tap-ms = <175>;
             require-prior-idle-ms = <150>;
-            flavor = "balanced";
+            bindings = <&kp>, <&kp>;
             hold-trigger-key-positions = <KEYS_R THUMBS>;
             hold-trigger-on-release;
-            bindings = <&kp>, <&kp>;
         };
 
-        /*
-         * Home row mod, right hand.
-         * Colemak-DH home row:
-         *   N E I O
-         *
-         * Mods:
-         *   N = Shift
-         *   E = Ctrl
-         *   I = Alt
-         *   O = GUI
-         */
+        /* Right-hand home row mod: only holds if next key is on the LEFT hand */
         hmr: home_row_mod_right {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
+            flavor = "balanced";
             tapping-term-ms = <280>;
             quick-tap-ms = <175>;
             require-prior-idle-ms = <150>;
-            flavor = "balanced";
+            bindings = <&kp>, <&kp>;
             hold-trigger-key-positions = <KEYS_L THUMBS>;
             hold-trigger-on-release;
-            bindings = <&kp>, <&kp>;
         };
 
-        /*
-         * Backspace/Delete mod-morph:
-         *   Backspace = Backspace
-         *   Shift + Backspace = Delete
-         */
-        bspc_del: backspace_delete {
-            compatible = "zmk,behavior-mod-morph";
-            #binding-cells = <0>;
-            mods = <(MOD_LSFT|MOD_RSFT)>;
-            bindings = <&kp BSPC>, <&kp DEL>;
-        };
-
-        /*
-         * Custom NUM layer-tap using the Backspace/Delete mod-morph.
-         *
-         * Usage:
-         *   &lt_num_bspc NUM 0
-         *
-         * Result:
-         *   Tap = Backspace
-         *   Shift + Tap = Delete
-         *   Hold = NUM
-         *
-         * The second parameter is a dummy value because ZMK hold-tap
-         * behaviors require exactly two binding cells.
-         */
-        lt_num_bspc: layer_tap_num_backspace {
+        /* Thumb layer-taps: snappier than HRMs, repeatable space/enter */
+        tlt: thumb_layer_tap {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            tapping-term-ms = <200>;
-            quick-tap-ms = <200>;
-            require-prior-idle-ms = <125>;
             flavor = "balanced";
-            bindings = <&mo>, <&bspc_del>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+            bindings = <&mo>, <&kp>;
+        };
+
+        /* Shift / caps-word on one key: tap = sticky shift feel via plain shift,
+           double-tap = caps word */
+        td_shift: tap_dance_shift {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&kp LSHFT>, <&caps_word>;
         };
     };
 
     combos {
         compatible = "zmk,combos";
 
-        /*
-         * Both inner thumbs together = toggle GAME on/off.
-         * Limited to BASE so it does not accidentally trigger from other layers.
-         */
-        combo_game_toggle {
-            timeout-ms = <50>;
-            key-positions = <38 39>;
-            bindings = <&tog GAME>;
+        /* F + J together = Caps Word (great for CONSTANTS_IN_CODE) */
+        combo_caps_word {
+            timeout-ms = <40>;
+            key-positions = <16 19>;
+            bindings = <&caps_word>;
             layers = <BASE>;
         };
-    };
 
-    conditional_layers {
-        compatible = "zmk,conditional-layers";
+        /* D + F = underscore, K + L = minus: the two most-typed
+           programming characters without leaving home row */
+        combo_underscore {
+            timeout-ms = <40>;
+            key-positions = <15 16>;
+            bindings = <&kp UNDER>;
+            layers = <BASE>;
+        };
+        combo_minus {
+            timeout-ms = <40>;
+            key-positions = <20 21>;
+            bindings = <&kp MINUS>;
+            layers = <BASE>;
+        };
 
-        /*
-         * Holding both outer thumbs:
-         *   Left outer = MEDIA
-         *   Right outer = UTIL
-         * activates DIAG.
-         */
-        tri_diag {
-            if-layers = <MEDIA UTIL>;
-            then-layer = <DIAG>;
+        /* Both inner thumbs = SYS layer (BT / reset) so it can't fire by accident */
+        combo_sys {
+            timeout-ms = <50>;
+            key-positions = <38 39>;
+            bindings = <&mo SYS>;
         };
     };
 
     keymap {
         compatible = "zmk,keymap";
 
-        /*
-         * BASE — Colemak-DH.
-         *
-         * Layout:
-         *   Q  W  F  P  B     J  L  U  Y  ;
-         *   A  R  S  T  G     M  N  E  I  O
-         *   Z  X  C  D  V     K  H  ,  .  /
-         *
-         * Outer columns:
-         *   Left:  TAB  ESC  =     (= promoted from NUM for easy access)
-         *   Right: ;    '    -     (- promoted from NUM for easy access)
-         *
-         * Home row mods (hold):
-         *   A=GUI  R=Alt  S=Ctrl  T=Shift
-         *   N=Shift  E=Ctrl  I=Alt  O=GUI
-         */
         base_layer {
             display-name = "BASE";
             bindings = <
-&kp TAB    &kp Q        &kp W        &kp E         &kp R         &kp T         &kp Y  &kp U         &kp I         &kp O         &kp P           &bspc_del
-&kp ESC    &hml LGUI A  &hml LALT S  &hml LCTRL D  &hml LSHFT F  &kp G         &kp H  &hmr RSHFT J  &hmr RCTRL K  &hmr LALT L   &hmr RGUI SEMI  &kp SQT
-&kp EQUAL  &kp Z        &kp X        &kp C         &kp V         &kp B         &kp N  &kp M         &kp COMMA     &kp DOT       &kp FSLH        &kp MINUS
-                                     &lt MEDIA ESC &lt NAV SPACE &kp TAB      &lt SYM RET &lt_num_bspc NUM 0 &lt UTIL DEL
+&kp TAB    &kp Q         &kp W         &kp E          &kp R          &kp T          &kp Y      &kp U          &kp I          &kp O         &kp P         &kp BSPC
+&kp ESC    &hml LGUI A   &hml LALT S   &hml LCTRL D   &hml LSHFT F   &kp G          &kp H      &hmr RSHFT J   &hmr RCTRL K   &hmr RALT L   &hmr RGUI SEMI &kp SQT
+&td_shift  &kp Z         &kp X         &kp C          &kp V          &kp B          &kp N      &kp M          &kp COMMA      &kp DOT       &kp FSLH      &kp ENTER
+                                       &kp LGUI       &tlt NAV SPACE &tlt NUM TAB   &tlt SYM ENTER  &tlt NAV BSPC  &kp DEL
             >;
         };
 
-        /*
-         * NAV — daily navigation + editing.
-         *
-         * Right hand:
-         *   Arrows, Insert, Home, End, PgUp, PgDn, Delete.
-         *
-         * Left hand:
-         *   Undo/Cut/Copy/Paste/Redo and word movement/deletion.
-         *
-         * caps_word on G position:
-         *   Activates shift for one word, then auto-deactivates.
-         *   Useful for typing SCREAMING_SNAKE_CASE without holding shift.
-         */
         nav_layer {
             display-name = "NAV";
             bindings = <
-&trans  &kp K_UNDO    &kp K_CUT     &kp K_COPY    &kp K_PASTE  &kp K_REDO   &kp K_REDO  &kp K_PASTE  &kp K_COPY  &kp K_CUT   &kp K_UNDO  &trans
-&trans  &kp LC(LEFT)  &kp LC(RIGHT) &kp LC(BSPC)  &kp LC(DEL)  &caps_word   &kp LEFT    &kp DOWN     &kp UP      &kp RIGHT   &kp INS     &trans
-&trans  &trans        &trans        &trans        &trans       &trans       &kp HOME    &kp PG_DN    &kp PG_UP   &kp END     &kp DEL     &trans
-                                &trans        &trans        &trans       &kp RET     &bspc_del   &kp DEL
+&trans     &kp LC(X)  &kp LC(C)  &kp LC(V)  &kp LC(Z)  &kp LC(Y)      &kp PG_UP   &kp HOME    &kp UP      &kp END     &kp INS     &kp BSPC
+&trans     &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &kp CAPS       &kp PG_DN   &kp LEFT    &kp DOWN    &kp RIGHT   &kp DEL     &kp C_PP
+&trans     &kp K_UNDO &kp K_CUT  &kp K_COPY &kp K_PASTE &kp LC(A)     &kp C_PREV  &kp C_VOL_DN &kp C_VOL_UP &kp C_NEXT &kp C_MUTE  &kp PSCRN
+                                 &trans     &trans      &trans        &trans      &trans       &trans
             >;
         };
 
-        /*
-         * UTIL — utility, F-keys, system keys, and game-support keys.
-         */
-        util_layer {
-            display-name = "UTIL";
-            bindings = <
-&trans  &kp F1       &kp F2       &kp F3       &kp F4       &kp F5          &kp F6        &kp F7        &kp F8        &kp F9      &kp F10       &trans
-&trans  &kp CAPS     &kp INS      &kp HOME     &kp PG_UP    &kp DEL         &kp LEFT      &kp DOWN      &kp UP        &kp RIGHT   &kp F11       &trans
-&trans  &kp PSCRN    &kp SLCK     &kp END      &kp PG_DN    &kp PAUSE_BREAK &kp LC(LEFT)  &kp LC(RIGHT) &kp LC(BSPC)  &kp LC(DEL) &kp F12       &trans
-                                &trans        &trans        &trans         &kp K_APP     &trans       &trans
-            >;
-        };
-
-        /*
-         * MEDIA — Bluetooth, output, and media controls only.
-         */
-        media_layer {
-            display-name = "MEDIA";
-            bindings = <
-&trans  &trans      &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3   &trans       &trans         &trans       &trans         &trans       &trans
-&trans  &none       &none        &none        &none        &out OUT_TOG   &kp C_PREV   &kp C_VOL_DN   &kp C_VOL_UP &kp C_NEXT     &trans       &trans
-&trans  &trans      &trans       &trans       &trans       &trans         &trans       &trans         &kp C_MUTE   &kp C_PP       &kp C_STOP   &trans
-                                 &trans       &trans       &trans         &kp C_STOP   &kp C_PP       &kp C_MUTE
-            >;
-        };
-
-        /*
-         * NUM — numbers, brackets, and common numeric operators.
-         *
-         * Numpad layout (right hand):
-         *   [  7  8  9  ]
-         *   ;  4  5  6  =
-         *   .  1  2  3  -
-         *
-         * 0 promoted to right-inner thumb for natural numpad feel.
-         * Dot and comma on thumbs for decimal entry.
-         */
         num_layer {
             display-name = "NUM";
             bindings = <
-&trans  &trans     &trans     &trans     &trans     &trans     &kp LBKT      &kp N7    &kp N8    &kp N9    &kp RBKT      &trans
-&trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &trans     &kp SEMI      &kp N4    &kp N5    &kp N6    &kp EQUAL     &trans
-&trans  &trans     &trans     &kp BSLH   &kp GRAVE  &trans     &kp DOT       &kp N1    &kp N2    &kp N3    &kp MINUS     &trans
-                              &trans     &kp COMMA     &kp N0     &trans     &trans    &trans
+&kp F1     &kp F2     &kp F3     &kp F4     &kp F5     &kp F6         &kp KP_SLASH  &kp N7   &kp N8   &kp N9   &kp KP_MINUS  &kp BSPC
+&kp F7     &kp F8     &kp F9     &kp F10    &kp F11    &kp F12        &kp KP_ASTERISK &kp N4 &kp N5   &kp N6   &kp KP_PLUS   &kp KP_ENTER
+&trans     &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &none          &kp KP_EQUAL  &kp N1   &kp N2   &kp N3   &kp DOT       &kp ENTER
+                                 &trans     &trans     &trans         &kp N0        &kp N0   &kp DOT
             >;
         };
 
-        /*
-         * SYM — programming symbols.
-         *
-         * Top row right hand:
-         *   )  &  *  (  }
-         *   ( and ) both on top row; { } on thumbs.
-         *
-         * Thumbs:
-         *   _  (hold SYM)  {  }
-         */
         sym_layer {
             display-name = "SYM";
             bindings = <
-&trans  &trans     &trans     &trans     &trans     &trans     &kp RPAR      &kp AMPS  &kp ASTRK &kp LPAR  &kp RBRC      &trans
-&trans  &kp LGUI   &kp LALT   &kp LCTRL  &kp LSHFT  &trans     &kp COLON     &kp DLLR  &kp PRCNT &kp CARET &kp PLUS      &trans
-&trans  &trans     &trans     &trans     &trans     &trans     &kp TILDE     &kp EXCL  &kp AT    &kp HASH  &kp PIPE      &trans
-                              &trans     &trans     &kp UNDER  &trans        &kp LBRC  &kp RBRC
+&kp GRAVE  &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT      &kp CARET   &kp AMPS    &kp ASTRK   &kp LPAR    &kp RPAR    &kp BSPC
+&kp TILDE  &kp MINUS  &kp UNDER  &kp LBRC   &kp LPAR   &kp LBKT       &kp RBKT    &kp RPAR    &kp RBRC    &kp EQUAL   &kp PLUS    &kp PIPE
+&trans     &kp LT     &kp GT     &kp COLON  &kp SEMI   &kp BSLH       &kp FSLH    &kp DQT     &kp SQT     &kp QMARK   &kp BSLH    &kp ENTER
+                                 &trans     &trans     &trans         &trans      &trans      &trans
             >;
         };
 
-        /*
-         * GAME — QWERTY/WASD-friendly gaming layer.
-         *
-         * Standard QWERTY top row: Q W E R T
-         * ESC on outer left pinky — standard for most games.
-         *
-         * Hold right Enter thumb for UTIL access:
-         *   F-keys, Insert/Delete, Home/End, PgUp/PgDn, etc.
-         *
-         * Toggle GAME off: right outer thumb (&tog GAME).
-         */
+        sys_layer {
+            display-name = "SYS";
+            bindings = <
+&bootloader &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4    &none      &none      &none      &none      &none      &bootloader
+&sys_reset  &out OUT_USB &out OUT_BLE &none        &none        &bt BT_CLR      &none      &none      &none      &none      &none      &sys_reset
+&none       &none        &none        &none        &none        &tog GAME       &none      &none      &none      &none      &none      &none
+                                      &trans       &trans       &trans          &trans     &trans     &trans
+            >;
+        };
+
         game_layer {
             display-name = "GAME";
             bindings = <
-&kp ESC    &kp Q      &kp W      &kp E      &kp R      &kp T         &kp Y     &kp U       &kp I       &kp O       &kp P         &bspc_del
-&kp TAB    &kp LSHFT  &kp A      &kp S      &kp D      &kp F         &kp H     &kp J       &kp K       &kp L       &kp SEMI      &kp SQT
-&kp LCTRL  &kp Z      &kp X      &kp C      &kp V      &kp B         &kp N     &kp M       &kp COMMA   &kp DOT     &kp FSLH      &kp RET
-                                 &kp LCTRL  &kp SPACE  &kp LALT      &lt UTIL RET &bspc_del &tog GAME
+&kp TAB    &kp Q      &kp W      &kp E      &kp R      &kp T          &kp Y      &kp U      &kp I      &kp O      &kp P      &kp BSPC
+&kp ESC    &kp A      &kp S      &kp D      &kp F      &kp G          &kp H      &kp J      &kp K      &kp L      &kp SEMI   &kp SQT
+&kp LSHFT  &kp Z      &kp X      &kp C      &kp V      &kp B          &kp N      &kp M      &kp COMMA  &kp DOT    &kp FSLH   &kp ENTER
+                                 &kp LALT   &kp SPACE  &mo GFN        &kp ENTER  &kp SPACE  &tog GAME
             >;
         };
 
-        /*
-         * DIAG — firmware/system recovery layer.
-         * No ZMK Studio unlock.
-         */
-        diag_layer {
-            display-name = "DIAG";
+        gfn_layer {
+            display-name = "GFN";
             bindings = <
-&bootloader  &none      &none      &none      &none      &none         &none           &none         &none         &none         &none           &bootloader
-&sys_reset   &none      &none      &none      &none      &none         &none           &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3    &sys_reset
-&none        &none      &none      &none      &none      &none         &none           &out OUT_USB  &out OUT_BLE  &bt BT_CLR    &bt BT_CLR_ALL  &none
-                                   &none      &none      &none         &none           &none         &none
+&kp GRAVE  &kp N1     &kp N2     &kp N3     &kp N4     &kp N5         &kp N6     &kp N7     &kp N8     &kp N9     &kp N0     &trans
+&kp F1     &kp F2     &kp F3     &kp F4     &kp F5     &kp F6         &trans     &trans     &trans     &trans     &trans     &trans
+&kp LCTRL  &kp F7     &kp F8     &kp F9     &kp F10    &kp M          &trans     &trans     &trans     &trans     &trans     &trans
+                                 &trans     &trans     &trans         &trans     &trans     &trans
             >;
         };
     };
-};
-
-/*
- * Tune the default &lt layer-tap behavior used on the thumbs.
- */
-&lt {
-    quick-tap-ms = <200>;
-    require-prior-idle-ms = <125>;
 };
